@@ -23,27 +23,27 @@ jobs:
       fail-fast: false
       matrix:
         settings:
-          - target: x86_64-apple-darwin
-            host: macos-latest
-            use-cross: false
-            post-build: |
-              mkdir build && \
-              cp target/x86_64-apple-darwin/release/wol build/wol && \
-              strip -x build/wol
-          - target: aarch64-apple-darwin
-            host: macos-latest
-            use-cross: false
-            post-build: |
-              mkdir build && \
-              cp target/aarch64-apple-darwin/release/wol build/wol && \
-              strip -x build/wol
+#          - target: x86_64-apple-darwin
+#            host: macos-latest
+#            use-cross: false
+#            post-build: |
+#              mkdir build && \
+#              cp target/x86_64-apple-darwin/release/wol build/wol && \
+#              strip -x build/wol
+#          - target: aarch64-apple-darwin
+#            host: macos-latest
+#            use-cross: false
+#            post-build: |
+#              mkdir build && \
+#              cp target/aarch64-apple-darwin/release/wol build/wol && \
+#              strip -x build/wol
 
-          - target: x86_64-pc-windows-msvc
-            host: windows-latest
-            use-cross: false
-            post-build: |
-              md build
-              copy target/x86_64-pc-windows-msvc/release/wol.exe build/wol.exe
+#          - target: x86_64-pc-windows-msvc
+#            host: windows-latest
+#            use-cross: false
+#            post-build: |
+#              md build
+#              copy target/x86_64-pc-windows-msvc/release/wol.exe build/wol.exe
           # crate ring not support: https://github.com/briansmith/ring/issues/1167
           # - target: aarch64-pc-windows-msvc
           #   host: windows-latest
