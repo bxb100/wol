@@ -18,7 +18,7 @@ esac
 
 mkdir wol
 
-wget https://github.com/nashaofu/wol/releases/latest/download/wol-${target}.zip
+wget https://github.com/bxb100/wol/releases/latest/download/wol-${target}.zip
 unzip wol-${target}.zip
 mv wol-${target}/wol wol/wol
 chmod +x wol/wol

@@ -186,4 +186,4 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/nashaofu/wol:latest
+          tags: ${{ env.REGISTRY }}/bxb100/wol:latest
