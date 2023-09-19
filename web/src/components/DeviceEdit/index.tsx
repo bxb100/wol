@@ -1,11 +1,15 @@
-import { useCallback, useEffect } from 'react';
+import {useCallback, useEffect} from 'react';
 import {
-  Form, Input, Modal, InputNumber,
+  Form, Input, Modal, Button, Space,
 } from 'antd';
-import { get } from 'lodash-es';
-import { Device } from '@/types/device';
+import {get} from 'lodash-es';
+import {Device} from '@/types/device';
 import useMessage from '@/hooks/useMessage';
-import { useAddDevice, useUpdateDevice } from '@/hooks/useDevices';
+import {useAddDevice, useUpdateDevice} from '@/hooks/useDevices';
+import {SearchOutlined} from "@ant-design/icons";
+import {useWatch} from "antd/lib/form/Form";
+import fetcher from "@/utils/fetcher";
+import useSWRMutation from "swr/mutation";
 
 export type DeviceEditModel = Omit<Device, 'uid'>;
 
@@ -16,15 +20,11 @@ export interface DeviceEditProps {
   onCancel: () => unknown;
 }
 
-export default function DeviceEdit({
-  device,
-  open,
-  onOk,
-  onCancel,
-}: DeviceEditProps) {
+export default function DeviceEdit({device, open, onOk, onCancel,}: DeviceEditProps) {
   const [form] = Form.useForm<DeviceEditModel>();
+  const ipValue = useWatch("ip", form);
   const message = useMessage();
-  const { isMutating: addDeviceLoading, trigger: addDevice } = useAddDevice({
+  const {isMutating: addDeviceLoading, trigger: addDevice} = useAddDevice({
     onSuccess: () => {
       onOk();
       message.success('添加成功');
@@ -33,7 +33,7 @@ export default function DeviceEdit({
       message.error(get(err, 'response.data.message', '添加失败'));
     },
   });
-  const { isMutating: updateDeviceLoading, trigger: updateDevice } = useUpdateDevice({
+  const {isMutating: updateDeviceLoading, trigger: updateDevice} = useUpdateDevice({
     onSuccess: () => {
       onOk();
       message.success('保存成功');
@@ -67,13 +67,26 @@ export default function DeviceEdit({
         name: device.name,
         mac: device.mac,
         ip: device.ip,
-        port: device.port,
       });
     } else {
       form.resetFields();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  const {trigger, isMutating} = useSWRMutation(
+    '/device/arp',
+    (url, {arg}: { arg: string }) => fetcher.post<unknown, string>(url, {ip: arg}),
+    {
+      onSuccess: (data) => {
+        console.log(data)
+        form.setFieldValue("mac", data)
+      },
+      onError: (err) => {
+        void message.error(get(err, 'response.data.message', 'offline'));
+      }
+    }
+  );
 
   return (
     <Modal
@@ -117,7 +130,7 @@ export default function DeviceEdit({
             },
           ]}
         >
-          <Input showCount maxLength={30} placeholder="设备名" />
+          <Input showCount maxLength={30} placeholder="设备名"/>
         </Form.Item>
         <Form.Item
           label="MAC 地址"
@@ -132,49 +145,41 @@ export default function DeviceEdit({
             },
             {
               type: 'string',
-              pattern: /^([A-F0-9]{2}:){5}[A-F0-9]{2}$/,
+              pattern: /^([A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2}$/,
               message: '请输入正确的 MAC 地址',
             },
           ]}
         >
-          <Input showCount placeholder="AA:BB:CC:DD:EE:FF" />
+          <Input showCount placeholder="AA:BB:CC:DD:EE:FF"/>
         </Form.Item>
-        <Form.Item
-          label="IP 地址"
-          name="ip"
-          validateFirst
-          rules={[
-            {
-              type: 'string',
-              pattern: /^(\d{1,3}\.){3}\d{1,3}$/,
-              message: '请输入正确的 IP 地址',
-            },
-          ]}
-        >
-          <Input showCount placeholder="192.168.1.1" />
+        <Form.Item label="IP 地址">
+          <Space.Compact block>
+            <Form.Item
+              name="ip"
+              validateFirst
+              style={{width: '80%'}}
+              rules={[
+                {
+                  type: 'string',
+                  pattern: /^(\d{1,3}\.){3}\d{1,3}$/,
+                  message: '请输入正确的 IP 地址',
+                },
+              ]}
+            >
+              <Input showCount placeholder="192.168.1.1"/>
+            </Form.Item>
+            <Button
+              style={{width: '20%'}}
+              loading={isMutating}
+              disabled={ipValue == null || !ipValue.match(/^(\d{1,3}\.){3}\d{1,3}$/)}
+              icon={<SearchOutlined/>}
+              onClick={() => trigger(ipValue)
+              }
+            >arp</Button>
+          </Space.Compact>
         </Form.Item>
-        <Form.Item
-          label="端口号"
-          name="port"
-          required
-          validateFirst
-          rules={[
-            {
-              type: 'number',
-              required: true,
-              message: '请输入端口号',
-            },
-            {
-              type: 'number',
-              min: 0,
-              max: 65535,
-              message: '请输入正确端口号',
-            },
-          ]}
-          initialValue={9}
-        >
-          <InputNumber min={0} max={65535} />
-        </Form.Item>
+
+
       </Form>
     </Modal>
   );

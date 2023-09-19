@@ -27,13 +27,13 @@ pub struct Device {
   pub name: String,
   pub mac: String,
   pub ip: String,
-  pub port: Option<u16>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Settings {
   pub auth: Option<Auth>,
   pub devices: Vec<Device>,
+  pub chosen_interface: Option<String>,
 }
 
 impl Settings {
@@ -48,7 +48,13 @@ impl Settings {
 
     let auth = config.get::<Auth>("auth").ok();
 
-    let settings = Settings { auth, devices };
+    let chosen_interface = config.get::<String>("chosen_interface").ok();
+
+    let settings = Settings {
+      auth,
+      devices,
+      chosen_interface,
+    };
 
     log::debug!("Init settings: {:?}", settings);
     settings.save()?;
@@ -57,7 +63,7 @@ impl Settings {
 
   pub fn save(self: &Settings) -> Result<()> {
     let yaml = serde_yaml::to_string(&self)?;
-    fs::write(&CONFIG_FILE.to_path_buf(), yaml)?;
+    fs::write(CONFIG_FILE.to_path_buf(), yaml)?;
     Ok(())
   }
 }

@@ -3,10 +3,16 @@ export interface Device {
   name: string;
   mac: string;
   ip: string;
-  port: number;
 }
 
 export enum DeviceStatus {
   Online = 'Online',
   Offline = 'Offline',
+}
+
+export interface HostInterface {
+  name: string;
+  mac: string;
+  ips: string[];
+  chosen: boolean;
 }

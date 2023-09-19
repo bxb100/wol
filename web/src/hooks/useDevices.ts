@@ -1,14 +1,14 @@
-import useSWR, { SWRConfiguration } from 'swr';
-import useSWRMutation, { SWRMutationConfiguration } from 'swr/mutation';
-import { nanoid } from 'nanoid';
+import useSWR, {SWRConfiguration} from 'swr';
+import useSWRMutation, {SWRMutationConfiguration} from 'swr/mutation';
+import {nanoid} from 'nanoid';
 import fetcher from '@/utils/fetcher';
-import { Device } from '@/types/device';
+import {Device, HostInterface} from '@/types/device';
 
 type UseSaveDevicesConfig = SWRMutationConfiguration<
-Device[],
-Error,
-'/device/save',
-Device[]
+  Device[],
+  Error,
+  '/device/save',
+  Device[]
 >;
 
 export function useDevices(config?: SWRConfiguration<Device[]>) {
@@ -16,12 +16,10 @@ export function useDevices(config?: SWRConfiguration<Device[]>) {
     '/device/all',
     async (url) => {
       const resp = await fetcher.get<unknown, Omit<Device, 'uid'>[]>(url);
-      const devices = resp.map((item) => ({
+      return resp.map((item) => ({
         ...item,
         uid: nanoid(),
       }));
-
-      return devices;
     },
     {
       revalidateOnFocus: false,
@@ -31,10 +29,10 @@ export function useDevices(config?: SWRConfiguration<Device[]>) {
 }
 
 export function useSaveDevices(config?: UseSaveDevicesConfig) {
-  const { mutate } = useDevices();
+  const {mutate} = useDevices();
   return useSWRMutation(
     '/device/save',
-    async (url, { arg }: { arg: Device[] }) => {
+    async (url, {arg}: { arg: Device[] }) => {
       const resp = await fetcher.post<unknown, Omit<Device, 'uid'>[]>(
         url,
         arg.map((item) => ({
@@ -57,7 +55,7 @@ export function useSaveDevices(config?: UseSaveDevicesConfig) {
 }
 
 export function useAddDevice(config?: UseSaveDevicesConfig) {
-  const { data: devices = [] } = useDevices();
+  const {data: devices = []} = useDevices();
   const saveDevices = useSaveDevices(config);
 
   return {
@@ -74,7 +72,7 @@ export function useAddDevice(config?: UseSaveDevicesConfig) {
 }
 
 export function useUpdateDevice(config?: UseSaveDevicesConfig) {
-  const { data: devices = [] } = useDevices();
+  const {data: devices = []} = useDevices();
   const saveDevices = useSaveDevices(config);
 
   return {
@@ -91,7 +89,7 @@ export function useUpdateDevice(config?: UseSaveDevicesConfig) {
 }
 
 export function useDeleteDevice(config?: UseSaveDevicesConfig) {
-  const { data: devices = [] } = useDevices();
+  const {data: devices = []} = useDevices();
   const saveDevices = useSaveDevices(config);
 
   return {
@@ -105,13 +103,33 @@ export function useWakeDevice(
 ) {
   return useSWRMutation(
     '/device/wake',
-    async (url, { arg }: { arg: Device }) => {
+    async (url, {arg}: { arg: Device }) => {
       await fetcher.post(url, arg);
       // 延迟 10s, 等待机器开机
       await new Promise<void>((resolve) => {
         setTimeout(() => resolve(), 10000);
       });
     },
+    config,
+  );
+}
+
+export function useInterface(config?: SWRConfiguration<HostInterface[]>) {
+  return useSWR<HostInterface[]>(
+    '/device/interface',
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      ...config,
+    },
+  );
+}
+
+export function useUpdateInterface(config?: SWRMutationConfiguration<string, Error, '/device/interface', string>) {
+
+  return useSWRMutation(
+    '/device/interface',
+    (url, {arg}: { arg: string }) => fetcher.post<void, string>(url + `/${arg}`),
     config,
   );
 }

@@ -11,9 +11,9 @@ anyhow = "1.0"
 base64 = "0.21"
 clap = { version = "4.3", features = ["derive"] }
 config = { version = "0.13", default-features = false, features = [
-  "ron",
-  "yaml",
-  "yaml-rust",
+    "ron",
+    "yaml",
+    "yaml-rust",
 ] }
 dotenv = "0.15"
 env_logger = "0.10"
@@ -24,3 +24,7 @@ rust-embed = { version = "6.7", features = ["mime-guess"] }
 serde = "1.0"
 serde_yaml = "0.9"
 surge-ping = "0.8"
+tokio = "1.32.0"
+
+[dependencies.pnet]
+version = "0.34.0"

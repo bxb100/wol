@@ -40,6 +40,18 @@ impl AppError {
   }
 }
 
+impl From<&str> for AppError {
+  fn from(value: &str) -> Self {
+    AppError::new(StatusCode::INTERNAL_SERVER_ERROR, 500, value)
+  }
+}
+
+impl From<String> for AppError {
+  fn from(value: String) -> Self {
+    AppError::new(StatusCode::INTERNAL_SERVER_ERROR, 500, value)
+  }
+}
+
 impl ResponseError for AppError {
   fn status_code(&self) -> StatusCode {
     self.status_code
