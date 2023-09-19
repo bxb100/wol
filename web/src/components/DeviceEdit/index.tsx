@@ -83,7 +83,7 @@ export default function DeviceEdit({device, open, onOk, onCancel,}: DeviceEditPr
         form.setFieldValue("mac", data)
       },
       onError: (err) => {
-        void message.error(get(err, 'response.data.message', 'offline'));
+        message.error(get(err, 'response.data.message', 'offline'));
       }
     }
   );

@@ -26,7 +26,7 @@ export default function Wol() {
       <App>
         <Root/>
         {
-          isLoading ? <></> : <FloatButton.Group
+          isLoading ? null : <FloatButton.Group
             trigger="hover"
             style={{right: 94}}
             shape="square"
